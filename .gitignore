@@ -1,0 +1,7 @@
+*.map
+*.o
+*.d
+*.hex
+*.elf
+*.swp
+.vscode/
