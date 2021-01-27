@@ -2,29 +2,41 @@ package main
 
 import (
 	"context"
+	"io"
 	"log"
 	"math"
 	"time"
 
+	"github.com/jacobsa/go-serial/serial"
 	"github.com/shirou/gopsutil/cpu"
-	"github.com/tarm/serial"
 )
 
 type AnalogMeter struct {
-	SerialPort *serial.Port
+	SerialPort io.ReadWriteCloser
 	updateMs   int
 }
 
-func NewAnalogMeter(serialDev string, updateMs int) (t *AnalogMeter, err error) {
+func NewAnalogMeter(portName string, updateMs int) (t *AnalogMeter, err error) {
 	t = new(AnalogMeter)
-	c := &serial.Config{Name: "/dev/cu.usbserial-1002", Baud: 115200}
-	s, err := serial.OpenPort(c)
+
+	c := serial.OpenOptions{
+		PortName:        portName,
+		BaudRate:        115200,
+		DataBits:        8,
+		StopBits:        1,
+		MinimumReadSize: 4,
+	}
+	p, err := serial.Open(c)
 	if err != nil {
 		return nil, err
 	}
-	t.SerialPort = s
+	t.SerialPort = p
 	t.updateMs = updateMs
 	return t, nil
+}
+
+func (t *AnalogMeter) Close() {
+	t.SerialPort.Close()
 }
 
 func (t *AnalogMeter) SendValue(n byte) {

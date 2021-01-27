@@ -28,6 +28,7 @@ func main() {
 	}
 
 	an, err := NewAnalogMeter(port, update)
+	defer an.Close()
 	if err != nil {
 		log.Fatal(err)
 	}
