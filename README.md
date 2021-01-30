@@ -5,4 +5,4 @@
 
 # 回路図
 
-[!schematics](images/schematics.png)
+![schematics](images/schematics.png)
