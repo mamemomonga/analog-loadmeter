@@ -5,7 +5,7 @@ DEVICE := attiny412
 CLOCK := 20000000
 
 # プログラマ
-PROGRAMMER := -c jtag2updi -P /dev/cu.usbserial-0001 
+PROGRAMMER := -c jtag2updi -P /dev/cu.usbserial-5001
 
 # ------------------------------------
 

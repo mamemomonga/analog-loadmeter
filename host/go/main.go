@@ -16,10 +16,13 @@ func main() {
 	var update int
 	var setZero bool
 	var setFull bool
+	var segChar string
+
 	flag.StringVar(&port, "p", "", "serial port")
 	flag.IntVar(&update, "u", 250, "update time")
 	flag.BoolVar(&setZero, "z", false, "set zero")
 	flag.BoolVar(&setFull, "f", false, "set fullscale")
+	flag.StringVar(&segChar, "7", "", "7seg char")
 	flag.Parse()
 
 	if port == "" {
@@ -34,17 +37,22 @@ func main() {
 	}
 
 	if setZero {
-		an.SendValue(0x00)
+		an.SendValue(CmdCPULoad, 0x00)
 		return
 	}
 
 	if setFull {
-		an.SendValue(0xFF)
+		an.SendValue(CmdCPULoad, 0xFF)
+		return
+	}
+
+	if segChar != "" {
+		an.SendValue(CmdSegChar, segChar[0])
 		return
 	}
 
 	for {
-		an.SendCPU()
+		an.SendCPULoad()
 	}
 
 }

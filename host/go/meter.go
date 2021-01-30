@@ -11,6 +11,11 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 )
 
+const (
+	CmdCPULoad uint8 = 1
+	CmdSegChar uint8 = 2
+)
+
 type AnalogMeter struct {
 	SerialPort io.ReadWriteCloser
 	updateMs   int
@@ -39,18 +44,18 @@ func (t *AnalogMeter) Close() {
 	t.SerialPort.Close()
 }
 
-func (t *AnalogMeter) SendValue(n byte) {
-	_, err := t.SerialPort.Write([]byte{1, n})
+func (t *AnalogMeter) SendValue(c byte, n byte) {
+	_, err := t.SerialPort.Write([]byte{c, n})
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func (t *AnalogMeter) SendCPU() {
+func (t *AnalogMeter) SendCPULoad() {
 	ctx := context.Background()
 	cpuPercent, err := cpu.PercentWithContext(ctx, time.Millisecond*time.Duration(t.updateMs), false)
 	if err != nil {
 		log.Fatal(err)
 	}
-	t.SendValue(byte(math.Floor(255 * (cpuPercent[0] / 100))))
+	t.SendValue(CmdCPULoad, byte(math.Floor(255*(cpuPercent[0]/100))))
 }

@@ -1,2 +1,5 @@
 *.lib
 *.bak
+*.sch-bak
+*.pdf
+
