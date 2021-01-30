@@ -19,3 +19,10 @@ MakefileにあるPROGRAMMER で設定しているavrdudeの-Pで指定してい�
 
 ![schematics](../images/schematics.png)	
 
+# メモ
+
+* ATtiny412はtinyAVR1シリーズで、アーキテクチャが以前のavr系とは異なり、xmega系となっています。
+* 書込にはUPDIデバイスが必要になります。
+* DAC機能を使用しているのでtinyAVR1シリーズが必要です。tinyAVR0シリーズにはDAC機能はありません。
+* ATtiny412にはSPI機能もついていますが、ピン数が少ないためMISOがSSとかぶってしまいうまく出力できません。そのためBitBangによるソフトウェアによる出力を行っています。
+
