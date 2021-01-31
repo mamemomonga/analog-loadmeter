@@ -10,4 +10,6 @@
 * [ハードウェア](./hardware)のプロセッサはATtiny412(tinyAVR1)、コードはC
 * [ホスト](./host)のコードはGolang
 
+# Arduino版
 
+* [Arduino版](./arduino)

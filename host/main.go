@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"os"
+	"time"
 )
 
 func usage() {
@@ -37,13 +38,19 @@ func main() {
 	}
 
 	if setZero {
-		an.SendValue(CmdCPULoad, 0x00)
-		return
+		for i:=0; i<3;i++ {
+			an.SendValue(CmdCPULoad, 0x00)
+			time.Sleep(time.Millisecond * 100)
+		}
+		return;
 	}
 
 	if setFull {
-		an.SendValue(CmdCPULoad, 0xFF)
-		return
+		for i:=0; i<3;i++ {
+			an.SendValue(CmdCPULoad, 0xFF)
+			time.Sleep(time.Millisecond * 100)
+		}
+		return;
 	}
 
 	if segChar != "" {
