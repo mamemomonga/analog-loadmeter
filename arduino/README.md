@@ -7,7 +7,7 @@
 
 # 使い方
 
-* Arduino IDEを使って[mater.ino](meter/meter.ino)を書き込んで下さい。
+* Arduino IDEを使って[meter.ino](meter/meter.ino)を書き込んで下さい。
 * [Arduino Everyの初期設定の方法はこちら](https://www.arduino.cc/en/Guide/NANOEvery)
 
 # 回路図
