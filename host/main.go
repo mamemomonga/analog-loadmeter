@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"time"
+	"fmt"
 )
 
 func usage() {
@@ -18,13 +19,20 @@ func main() {
 	var setZero bool
 	var setFull bool
 	var segChar string
+	var showVersion bool
 
 	flag.StringVar(&port, "p", "", "serial port")
 	flag.IntVar(&update, "u", 250, "update time")
 	flag.BoolVar(&setZero, "z", false, "set zero")
 	flag.BoolVar(&setFull, "f", false, "set fullscale")
+	flag.BoolVar(&showVersion, "v", false, "version")
 	flag.StringVar(&segChar, "7", "", "7seg char")
 	flag.Parse()
+
+	if showVersion {
+		fmt.Printf("cpuload-analogmater version %s\n",Version);
+		os.Exit(1);
+	}
 
 	if port == "" {
 		flag.PrintDefaults()
@@ -33,6 +41,7 @@ func main() {
 
 	an, err := NewAnalogMeter(port, update)
 	defer an.Close()
+
 	if err != nil {
 		log.Fatal(err)
 	}
