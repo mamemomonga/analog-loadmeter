@@ -5,6 +5,9 @@
 
 #define PWM_OUT 3
 
+int cpuVal;
+int curVal;
+
 void setup() {
 	Serial.begin(115200);
 	while(!Serial);
@@ -19,30 +22,46 @@ void setup() {
 		delay(50);
 	}
 	analogWrite(PWM_OUT,0);
+	cpuVal = 0;
+	curVal = 0;
 }
 
-void loop() {
+void loadValue() {
+	digitalWrite(LED_BUILTIN, LOW);
 	if(Serial.available() == 0) return;
 	int cmd = Serial.read();
 	if(cmd == -1) return;
 
 	int val;
-	for(uint8_t i=0;i<10;i++) {
-		val = Serial.read();
-		if(val != -1) break;
+	int retry=10;
+	while(retry--) {
+		if(Serial.available() != 0) break;
 		delay(10);
 	}
+	if(Serial.available() == 0) return;
+	val = Serial.read();
 	if(val == -1 ) return;
-	digitalWrite(LED_BUILTIN, HIGH);
 
 	switch(cmd) {
 		case CMD_CPULOAD:
-			analogWrite(PWM_OUT,val);
+			digitalWrite(LED_BUILTIN, HIGH);
+			cpuVal = val;
 			break;
 		default:
-			digitalWrite(LED_BUILTIN, LOW);
 			delay(1000);
 			break;
 	}
-	delay(10);
+}
+
+
+void loop() {
+	loadValue();
+	if(cpuVal > curVal) {
+		curVal++;
+		analogWrite(PWM_OUT,curVal);
+	} else if (cpuVal < curVal) {
+		curVal--;
+		analogWrite(PWM_OUT,curVal);
+	}
+	delay(5);
 }

@@ -12,5 +12,5 @@
 
 # 回路図
 
-![回路図](../images/arduino.png)
+![回路図](./arduino.png)
 

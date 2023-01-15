@@ -1,7 +1,7 @@
 
 SKETCH=meter
 FQBN=arduino:megaavr:nona4809
-PORT=/dev/cu.usbmodem211301
+PORT=/dev/cu.usbmodem124301
 
 all: compile upload
 
