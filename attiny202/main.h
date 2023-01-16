@@ -4,5 +4,6 @@
 void USART0_init();
 int main();
 void loop();
+void usart_read();
 
 #endif

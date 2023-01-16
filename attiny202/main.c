@@ -6,22 +6,25 @@
 #include <stdlib.h>	
 #include <avr/interrupt.h>
 
-// 入力した0~9までの値と同じ数だけLEDを点滅させる
-
 #define USART0_BAUD_RATE(BAUD_RATE) ((float)(F_CPU * 64 / (16 * (float)BAUD_RATE)) + 0.5)
+
+uint8_t cpuVal;
+float curVal;
 
 // RX割込
 ISR(USART0_RXC_vect) {
 }
 
-// USART0初期化
 void USART0_init() {
 	// ボーレート設定
 	USART0.BAUD = (uint16_t)USART0_BAUD_RATE(115200);
+	// TX:PA6 / RX:PA7
 	PORTMUX.CTRLB |= PORTMUX_USART0_DEFAULT_gc;
+	// RX割込有効
 	USART0.CTRLA |= USART_RXCIE_bm;
+	// RX有効
 	USART0.CTRLB |= USART_RXEN_bm; 
-	while(USART0.STATUS & USART_RXCIF_bm) { USART0.RXDATAL; }
+	// while(USART0.STATUS & USART_RXCIF_bm) { USART0.RXDATAL; }
 	sei();
 }
 
@@ -37,7 +40,7 @@ void PWM_init() {
     TCA0.SINGLE.CMP0BUF = 16; // DUTY_CYCLE_EXAMPLE_VALUE(PERBUF/2=50%)
      
     TCA0.SINGLE.CTRLA = TCA_SINGLE_CLKSEL_DIV2_gc // set clock source (sys_clk/2)
-                      | TCA_SINGLE_ENABLE_bm;     // start timer
+					  | TCA_SINGLE_ENABLE_bm;     // start timer
 
 }
 
@@ -48,26 +51,45 @@ int main(void) {
 	LED_OUT;
 	LED_L;
 
-	TCA0.SINGLE.PERBUF  = 100;
-	TCA0.SINGLE.CMP0BUF = 50;
+	TCA0.SINGLE.PERBUF  = 0xFF;
+	TCA0.SINGLE.CMP0BUF = 0xFF;
+	_delay_ms(1000);
+	TCA0.SINGLE.CMP0BUF = 0x00;
+	_delay_ms(1000);
 
-    while (1) {
-		loop();
-	}
+    while(1) loop();
     return 0;
 }
 
-void loop() {
-
-	if(USART0.STATUS & USART_RXCIF_bm) {
-		uint8_t code=USART0.RXDATAL;
-		if((code >=48) && (code <=57)) { // 0~9
-			uint8_t num=code-48;
-			TCA0.SINGLE.CMP0BUF = num*10;
-		} else if((code == 0x2D)) { // -
-			TCA0.SINGLE.CMP0BUF = 100;
-		}
-		while(USART0.STATUS & USART_RXCIF_bm) { USART0.RXDATAL; }
+void usart_read() {
+	if(!(USART0.STATUS & USART_RXCIF_bm)) return;
+	// コマンドの取得
+	uint8_t cmd=USART0.RXDATAL;
+	for(uint8_t i=0;i<100;i++) {
+		if(USART0.STATUS & USART_RXCIF_bm) break;
+		_delay_ms(10);
 	}
-	_delay_ms(10);
+	// データの取得
+	uint8_t val=USART0.RXDATAL;
+	while(USART0.STATUS & USART_RXCIF_bm) { USART0.RXDATAL; }
+
+	switch(cmd) {
+		case CMD_CPU_LOAD:
+			cpuVal = val;
+			break;
+		default:
+			break;
+	}
+}
+
+void loop() {
+	usart_read();
+	float cpu=((float)cpuVal/0xFF)*0xFFFF;
+    if(curVal < cpu) {
+        curVal=curVal+(cpu-curVal)/CFG_SMOOTH;
+    } else if (curVal > cpu) {
+        curVal=curVal-(curVal-cpu)/CFG_SMOOTH;
+    }
+	TCA0.SINGLE.CMP0BUF = (uint8_t)((curVal/0xFFFF)*0xFF);
+	_delay_ms(50);
 }

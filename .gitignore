@@ -5,3 +5,4 @@
 *.elf
 *.swp
 .vscode/
+.DS_Store
