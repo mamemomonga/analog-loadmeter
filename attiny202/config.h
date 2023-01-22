@@ -38,5 +38,6 @@ LED1 PA1 | 4    5 | PA2 LED2
 
 #define CMD_CPU_LOAD 0x01
 #define CFG_SMOOTH 20
+#define CFG_TIMEOUT 100
 
 #endif

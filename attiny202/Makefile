@@ -6,8 +6,8 @@ CLOCK := 20000000
 # CLOCK := 3333333
 
 # プログラマ
-PROGRAMMER := -c serialupdi -P /dev/cu.usbserial-12440
-SERIAL_PORT := /dev/cu.usbserial-12430
+PROGRAMMER := -c serialupdi -P /dev/cu.usbserial-2430
+SERIAL_PORT := /dev/cu.usbserial-2440
 
 # ------------------------------------
 

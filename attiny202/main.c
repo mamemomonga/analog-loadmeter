@@ -10,6 +10,7 @@
 
 uint8_t cpuVal;
 float curVal;
+uint8_t ct;
 
 // RX割込
 ISR(USART0_RXC_vect) {
@@ -48,14 +49,22 @@ int main(void) {
 	_PROTECTED_WRITE(CLKCTRL_MCLKCTRLB, 0);
 	USART0_init();
 	PWM_init();
-	LED_OUT;
-	LED_L;
+	LED1_OUT;
+	LED2_OUT;
+	LED1_H; // 赤
+	LED2_H; // 緑
 
 	TCA0.SINGLE.PERBUF  = 0xFF;
 	TCA0.SINGLE.CMP0BUF = 0xFF;
 	_delay_ms(1000);
+
 	TCA0.SINGLE.CMP0BUF = 0x00;
 	_delay_ms(1000);
+
+	LED1_L; // 赤
+	LED2_L; // 緑
+
+	ct=CFG_TIMEOUT;
 
     while(1) loop();
     return 0;
@@ -76,6 +85,7 @@ void usart_read() {
 	switch(cmd) {
 		case CMD_CPU_LOAD:
 			cpuVal = val;
+			ct=0;
 			break;
 		default:
 			break;
@@ -90,6 +100,27 @@ void loop() {
     } else if (curVal > cpu) {
         curVal=curVal-(curVal-cpu)/CFG_SMOOTH;
     }
-	TCA0.SINGLE.CMP0BUF = (uint8_t)((curVal/0xFFFF)*0xFF);
+	uint8_t mval = (uint8_t)((curVal/0xFFFF)*0xFF);
+	TCA0.SINGLE.CMP0BUF = mval;
+
+	ct++;
+	if(ct >= CFG_TIMEOUT) {
+		ct = CFG_TIMEOUT;
+		LED1_L;
+		LED2_L;
+		TCA0.SINGLE.CMP0BUF = 0;
+		_delay_ms(50);
+		return;
+	}
+	if(mval > 153) { // 60%
+		LED1_H;
+		LED2_H;
+	} else if(mval > 50) { // 20%
+		LED1_H;
+		LED2_L;
+	} else {
+		LED1_L;
+		LED2_H;
+	}
 	_delay_ms(50);
 }
